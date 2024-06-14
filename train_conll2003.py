@@ -4,8 +4,8 @@ from torch.optim import Adam
 from tqdm import tqdm
 from transformers import BertTokenizerFast
 
-import utils.utils_English as E
-import utils.utils_generic as G
+import utils.utils_conll2003 as E
+import utils.utils_Generic as G
 from utils.utils_training_testing import eval_conll2003
 from nets.Bert_Only import BertNER
 

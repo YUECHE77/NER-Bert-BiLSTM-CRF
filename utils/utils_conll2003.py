@@ -83,7 +83,9 @@ def load_json(data_path, train_ratio=0.8):
         assert len(sent) == len(ner_labels), "for every sentence, its ner_tag need to have the same length!"
 
         # That's the format of training/validation/test data:
+        # [([list1], [list2]), ([list3], [list4]), ..., ([listN], [listN+1])]
         # Every data in a tuple -> (Sentence, NER_tag) -> Both in list
+
         # For example:
         # Sentence: ['SOCCER', '-', 'JAPAN', 'GET', 'LUCKY', 'WIN', ',', 'CHINA', 'IN', 'SURPRISE', 'DEFEAT', '.']
         # NER_tag: ['O', 'O', 'B-LOC', 'O', 'O', 'O', 'O', 'B-PER', 'O', 'O', 'O', 'O']

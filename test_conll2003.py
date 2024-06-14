@@ -2,15 +2,15 @@ import torch
 
 from transformers import BertTokenizerFast
 
-import utils.utils_English as E
-import utils.utils_training_testing as T
+import utils.utils_conll2003 as E
+import utils.utils_Generic as G
 from nets.Bert_Only import BertNER
 
 if __name__ == "__main__":
     # ----------------------------------------------------#
     #   prompt: The sentence you want to test
     # ----------------------------------------------------#
-    prompt = 'My name is Yue Che, I come from China. I am an intern in Space Cloud company in Shenzhen.'
+    prompt = 'My name is Yue Che, I come from China. I am an intern in Space-iCloud company in Shenzhen.'
     # ----------------------------------------------------#
     #   save_path:      Path to save you json file
     #   download_path:  Path to conll2003 dataset
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     model.to(device)
     model.eval()
 
-    tokens, labels = T.predict(prompt, model, tokenizer, device, categories)
-    results = T.postprocess(tokens, labels)
+    tokens, labels = G.predict(prompt, model, tokenizer, device, categories)
+    results = G.postprocess(tokens, labels)
 
     label_list = []
     for token, label in results:

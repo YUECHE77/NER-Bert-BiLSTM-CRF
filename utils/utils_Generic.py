@@ -94,3 +94,35 @@ def evaluate(real_label, predict_label):
     f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
 
     return precision, recall, f1
+
+
+def preprocess(text, tokenizer, device):
+    inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
+    inputs = {key: value.to(device) for key, value in inputs.items()}
+    return inputs
+
+
+def predict(text, model, tokenizer, device, categories):
+    inputs = preprocess(text, tokenizer, device)
+    with torch.no_grad():
+        outputs = model(inputs)
+        predictions = outputs.argmax(dim=-1)
+
+    # 将预测结果转换为标签
+    tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
+    predictions = predictions.view(-1).cpu().numpy()
+    labels = [categories[pred] for pred in predictions if pred != -100]
+
+    return tokens, labels
+
+
+def postprocess(tokens, labels):
+    results = []
+    for token, label in zip(tokens, labels):
+        if token in ["[CLS]", "[SEP]", "[PAD]"]:  # 忽略特殊字符
+            continue
+        if token.startswith("##"):
+            results[-1][0] += token[2:]
+        else:
+            results.append([token, label])
+    return results
