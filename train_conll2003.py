@@ -6,7 +6,7 @@ from transformers import BertTokenizerFast
 
 import utils.utils_English as E
 import utils.utils_generic as G
-from utils.utils_training_testing import eval_eng
+from utils.utils_training_testing import eval_conll2003
 from nets.Bert_Only import BertNER
 
 
@@ -85,12 +85,13 @@ if __name__ == '__main__':
         with torch.no_grad():
             model.eval()
 
-            precision, recall, f1 = eval_eng(val_loader, model, device, categories)
+            precision, recall, f1 = eval_conll2003(val_loader, model, device, categories)
 
             print(f'Epoch: {epoch + 1:02d}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.3f}')
 
             if (epoch + 1) % 5 == 0:
-                save_path = f'logs/model_loss_{loss:.4f}.pth'
+                sub_path = int(f1 * 1000)
+                save_path = f'logs/model_f1_{sub_path}.pth'
                 torch.save(model.state_dict(), save_path)
 
     print('Finished Training')

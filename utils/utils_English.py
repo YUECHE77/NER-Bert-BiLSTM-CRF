@@ -1,4 +1,5 @@
 import json
+
 from datasets import load_dataset, load_from_disk
 
 
@@ -97,4 +98,18 @@ def load_json(data_path, train_ratio=0.8):
     return train_data, test_data
 
 
+def labellist_and_categories(if_downloaded=False, download_path='dataset/conll2003_NER'):
+    """Used for inference"""
+    if not if_downloaded:
+        download_conll2023(download_path)
 
+    dataset = load_from_disk(download_path)
+
+    label_list = dataset['train'].features['ner_tags'].feature.names
+    categories = {}
+
+    for idx, label in enumerate(label_list):
+        categories[label] = idx
+        categories[idx] = label
+
+    return label_list, categories
