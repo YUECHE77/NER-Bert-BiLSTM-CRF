@@ -21,8 +21,6 @@ def eval_eng(data_loader, model, device, categories):
                 target_labels.append(categories[target])
                 pred_labels.append(categories[prediction])
 
-        break
-
     precision, recall, f1 = evaluate(real_label=target_labels, predict_label=pred_labels)
 
     return precision, recall, f1

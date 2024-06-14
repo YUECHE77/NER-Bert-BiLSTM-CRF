@@ -3,12 +3,14 @@ from transformers import BertModel
 
 
 class BertNER(nn.Module):
-    def __init__(self, num_class, bert_model_type='bert-base-uncased'):
+    def __init__(self, num_class, bert_model_type='bert-base-uncased', dropout_rate=0.3):
         super(BertNER, self).__init__()
 
         # The default value of BertModel's output is 768
         # return_dict=True -> BertModel outputs in dictionary -> can be used as: bert_output['last_hidden_state']
         self.bert = BertModel.from_pretrained(bert_model_type, return_dict=True)
+
+        self.dropout = nn.Dropout(p=dropout_rate)
 
         self.classifier = nn.Linear(768, num_class)
 
@@ -27,8 +29,10 @@ class BertNER(nn.Module):
         # Because we are classifying tokens(NER)，instead of classifying sentences(Sentiment analysis)
         last_hidden_state = outputs.last_hidden_state
 
+        dropout = self.dropout(last_hidden_state)
+
         # (batch_size, sequence_length, hidden_size) -> (batch_size, sequence_length, num_class)
-        class_results = self.classifier(last_hidden_state)
+        class_results = self.classifier(dropout)
 
         batch_size, seq_len, ner_class_num = class_results.shape
         class_results = class_results.view(batch_size * seq_len, ner_class_num)

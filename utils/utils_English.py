@@ -3,7 +3,7 @@ from datasets import load_dataset, load_from_disk
 
 
 def download_conll2023(save_path):
-    dataset = load_dataset('conll2003')
+    dataset = load_dataset('conll2003', trust_remote_code=True)
     dataset.save_to_disk(save_path)
     print('The dataset is successfully downloaded to:', save_path)
 

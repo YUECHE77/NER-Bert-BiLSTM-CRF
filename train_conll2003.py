@@ -89,4 +89,8 @@ if __name__ == '__main__':
 
             print(f'Epoch: {epoch + 1:02d}, Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.3f}')
 
+            if (epoch + 1) % 5 == 0:
+                save_path = f'logs/model_loss_{loss:.4f}.pth'
+                torch.save(model.state_dict(), save_path)
+
     print('Finished Training')
