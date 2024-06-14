@@ -1,0 +1,10 @@
+.idea/
+All_Bert_Pretrained_Models/
+dataset/
+logs/
+Bert_BiLSTM_CRF.ipynb
+Bert_BiLSTM_CRF_Chinese.ipynb
+Bert_Softmax.ipynb
+FineTune_Pretrained.ipynb
+JustForTest.ipynb
+
