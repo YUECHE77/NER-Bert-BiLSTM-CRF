@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------#
     #   prompt: The sentence you want to test
     # ----------------------------------------------------#
-    prompt = 'My name is Yue Che, I come from China. I am an intern in Space-iCloud company in Shenzhen.'
+    prompt = ''
     # ----------------------------------------------------#
     #   save_path:      Path to save you json file
     #   download_path:  Path to conll2003 dataset
