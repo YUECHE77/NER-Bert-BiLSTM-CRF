@@ -15,10 +15,14 @@ if __name__ == '__main__':
     #   save_path:      Path to save you json file
     #   download_path:  Path to conll2003 dataset
     #   if_downloaded:  Have downloaded the conll2003 dataset
+
+    #   pretrained_model_name: Which pretrained bert model to use
     # ----------------------------------------------------#
     save_path = 'dataset/conll2023.jsonl'
     download_path = 'dataset/conll2003_NER'
     if_downloaded = True
+
+    pretrained_model_name = 'All_Bert_Pretrained_Models/bert-base-uncased'
     # ----------------------------------------------------#
     #   Training parameters
     #   epoch_num       Epoch number
@@ -35,20 +39,19 @@ if __name__ == '__main__':
                                              download_path=download_path)
     # ----------------------------------------------------#
     #   Read in the data and get the dataloaders
-    #   pretrained_model_name: Which pretrained bert model to use
+    #   I keep train ratio as default: 0.8 -> you can change it by passing argument to "load_json"
+    #   I don't have test set -> if you need it, just modify a few lines of codes in "load_json" -> very easy
     # ----------------------------------------------------#
-    train_data, test_data = E.load_json(save_path)
+    train_data, val_data = E.load_json(save_path)
 
-    pretrained_model_name = 'All_Bert_Pretrained_Models/bert-base-uncased'
     tokenizer = BertTokenizerFast.from_pretrained(pretrained_model_name)
 
     train_loader = G.get_dataloader(train_data, tokenizer, categories=categories, mode='Train')
-    val_loader = G.get_dataloader(test_data, tokenizer, categories=categories, mode='Val')
+    val_loader = G.get_dataloader(val_data, tokenizer, categories=categories, mode='Val')
     # ----------------------------------------------------#
     #   Get the model and put it on GPU
     # ----------------------------------------------------#
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('The device you are using is:', device)
 
     model = BertNER(len(label_list), bert_model_type=pretrained_model_name)
     model.to(device)
@@ -60,6 +63,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------#
     #   Start training
     # ----------------------------------------------------#
+    print('Start training!!!\n')
     for epoch in range(epoch_num):
         total_batches = len(train_loader)
 
@@ -94,4 +98,4 @@ if __name__ == '__main__':
                 save_path = f'logs/model_f1_{sub_path}.pth'
                 torch.save(model.state_dict(), save_path)
 
-    print('Finished Training')
+    print('Finished Training!!!\n')

@@ -1,21 +1,7 @@
-import torch
-import torch.nn as nn
-from torch.optim import Adam
-from torch.utils.data import Dataset, DataLoader
-from transformers import BertModel
-from tqdm import tqdm
-import os
-import time
 import json
 import numpy as np
+
 from sklearn.model_selection import train_test_split
-from transformers import BertTokenizerFast
-from transformers import logging
-from transformers import AdamW
-
-from datasets import load_dataset
-
-from torchcrf import CRF
 
 
 def read_json(file_path, all_names=set()):

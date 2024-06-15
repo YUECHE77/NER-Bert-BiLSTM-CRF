@@ -1,26 +1,14 @@
 import torch
 import torch.nn as nn
-from torch.optim import Adam
-from torch.utils.data import Dataset, DataLoader
-from transformers import BertModel
-from tqdm import tqdm
-import os
-import time
-import json
-import numpy as np
-from sklearn.model_selection import train_test_split
-from transformers import BertTokenizerFast
-from transformers import logging
-from transformers import AdamW
 
-from datasets import load_dataset
+from transformers import BertModel
 
 from torchcrf import CRF
 
 
-class BertNER(nn.Module):
+class CombinedNER(nn.Module):
     def __init__(self, num_class, bert_type='bert-base-chinese', need_rnn=False, rnn_dim=128, drop_rate=0.3):
-        super(BertNER, self).__init__()
+        super(CombinedNER, self).__init__()
 
         # # return_dict=True 可以使BertModel的输出具有dict属性，即以 bert_output['last_hidden_state'] 方式调用
         self.bert = BertModel.from_pretrained(bert_type, return_dict=True)
