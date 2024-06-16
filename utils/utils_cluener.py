@@ -118,4 +118,24 @@ def check_data(data, num=1):
         print('-' * 50)
 
 
+def get_labellist_and_categories(data_path='dataset/cluener/train.json', test_path='dataset/cluener/dev.json'):
+    """Just for inference"""
+    all_names = set()
 
+    def helper_func(file_path):
+        with open(file_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = json.loads(line.strip())
+
+                labels = line.get('label', None)
+
+                if labels is not None:
+                    for key, _ in labels.items():
+                        all_names.add(key)
+
+    helper_func(data_path)
+    helper_func(test_path)
+
+    label_list, categories = process_all_names(all_names)
+
+    return label_list, categories

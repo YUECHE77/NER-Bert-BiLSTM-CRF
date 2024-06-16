@@ -63,7 +63,7 @@ if __name__ == '__main__':
     # ----------------------------------------------------#
     #   Start training
     # ----------------------------------------------------#
-    print('Start training!!!\n')
+    print('\nStart training!!!\n')
     for epoch in range(epoch_num):
         total_batches = len(train_loader)
 
@@ -98,4 +98,4 @@ if __name__ == '__main__':
                 save_path = f'logs/model_f1_{sub_path}.pth'
                 torch.save(model.state_dict(), save_path)
 
-    print('Finished Training!!!\n')
+    print('\nFinished Training!!!\n')

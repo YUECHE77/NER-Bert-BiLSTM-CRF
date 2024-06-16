@@ -5,8 +5,9 @@ from .NER_Dataset import NerDataset
 
 
 def get_dataloader(data, tokenizer, categories, batch_size=32, mode='Train'):
+    """Get the train loader, test loader, and val loader"""
     def collate_fn(examples):
-        """The call back function"""
+        """The call back function -> you can also write this function in the 'NerDataset' class"""
         sents, all_labels = [], []
 
         for sent, ner_label in examples:
@@ -102,16 +103,25 @@ def preprocess(text, tokenizer, device):
     return inputs
 
 
-def predict(text, model, tokenizer, device, categories):
+def predict(text, model, tokenizer, device, categories, use_crf=False):
     inputs = preprocess(text, tokenizer, device)
     with torch.no_grad():
-        outputs = model(inputs)
-        predictions = outputs.argmax(dim=-1)
+        if not use_crf:
+            outputs = model(inputs)
+            predictions = outputs.argmax(dim=-1)
 
-    # 将预测结果转换为标签
-    tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
-    predictions = predictions.view(-1).cpu().numpy()
-    labels = [categories[pred] for pred in predictions if pred != -100]
+            # Convert the predictions to labels
+            tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0])
+            predictions = predictions.view(-1).cpu().numpy()
+            labels = [categories[pred] for pred in predictions if pred != -100]
+        else:
+            outputs = model.predict(inputs)
+            predictions = torch.tensor([p for seq in outputs for p in seq], device=device)
+
+            # Convert the predictions to labels
+            tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0].cpu().numpy())
+            predictions = predictions.cpu().numpy()
+            labels = [categories[pred] for pred in predictions]
 
     return tokens, labels
 
@@ -119,7 +129,7 @@ def predict(text, model, tokenizer, device, categories):
 def postprocess(tokens, labels):
     results = []
     for token, label in zip(tokens, labels):
-        if token in ["[CLS]", "[SEP]", "[PAD]"]:  # 忽略特殊字符
+        if token in ["[CLS]", "[SEP]", "[PAD]"]:  # ignore the special tokens
             continue
         if token.startswith("##"):
             results[-1][0] += token[2:]

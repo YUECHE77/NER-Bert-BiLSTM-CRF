@@ -2,32 +2,35 @@ import torch
 
 from transformers import BertTokenizerFast
 
-import utils.utils_conll2003 as E
+import utils.utils_cluener as C
 import utils.utils_Generic as G
-from nets.Bert_Only import BertNER
 
-if __name__ == "__main__":
+from nets.Bert_BiLSTM_CRF_Combined import CombinedNER
+
+
+if __name__ == '__main__':
     # ----------------------------------------------------#
     #   prompt: The sentence you want to test
     # ----------------------------------------------------#
     prompt = ''
     # ----------------------------------------------------#
-    #   save_path:      Path to save you json file
-    #   download_path:  Path to conll2003 dataset
-    #   if_downloaded:  Have downloaded the conll2003 dataset
+    #   data_path:      Path to the training set
+    #   test_path:      Path to the test set
 
     #   pretrained_model_name:  The Bert model
     #   model_path:             Your trained model
+    #   use_bilstm:             Did you contain BiLSTM while training
     # ----------------------------------------------------#
-    download_path = 'dataset/conll2003_NER'
-    if_downloaded = True
+    data_path = 'dataset/cluener/train.json'
+    test_path = 'dataset/cluener/dev.json'
 
-    pretrained_model_name = 'All_Bert_Pretrained_Models/bert-base-uncased'
-    model_path = 'logs/Bert_only_f1_90.pth'
+    pretrained_model_name = 'All_Bert_Pretrained_Models/bert-base-chinese'
+    model_path = 'logs/Bert_BiLSTM_CRF_f1_782.pth'
+    use_bilstm = True
     # ----------------------------------------------------#
     #   Get the label list and entities categories
     # ----------------------------------------------------#
-    label_list, categories = E.labellist_and_categories(if_downloaded=if_downloaded, download_path=download_path)
+    label_list, categories = C.get_labellist_and_categories(data_path, test_path)
     # ----------------------------------------------------#
     #   Load the model/tokenizer and put it on GPU
     # ----------------------------------------------------#
@@ -35,7 +38,7 @@ if __name__ == "__main__":
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    model = BertNER(len(label_list), bert_model_type=pretrained_model_name)
+    model = CombinedNER(num_class=len(label_list), bert_type=pretrained_model_name, need_rnn=use_bilstm)
     model.load_state_dict(torch.load(model_path))
 
     model.to(device)
@@ -43,7 +46,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------#
     #   Start prediction
     # ----------------------------------------------------#
-    tokens, labels = G.predict(prompt, model, tokenizer, device, categories)
+    tokens, labels = G.predict(prompt, model, tokenizer, device, categories, use_crf=True)
     results = G.postprocess(tokens, labels)
 
     label_list = []

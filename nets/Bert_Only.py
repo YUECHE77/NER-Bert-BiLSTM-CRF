@@ -7,18 +7,20 @@ class BertNER(nn.Module):
     def __init__(self, num_class, bert_model_type='bert-base-uncased', dropout_rate=0.3):
         super(BertNER, self).__init__()
 
-        # The default value of BertModel's output is 768
         # return_dict=True -> BertModel outputs in dictionary -> can be used as: bert_output['last_hidden_state']
         self.bert = BertModel.from_pretrained(bert_model_type, return_dict=True)
 
         self.dropout = nn.Dropout(p=dropout_rate)
 
+        # The default value of BertModel's output is 768
         self.classifier = nn.Linear(768, num_class)
 
     def forward(self, inputs):
         # input_ids :tensor，shape=batch_size * max_len -> max_len: Length of the longest sentence in current batch
         # input_tyi :tensor，identifiers of two sentences
         # input_attn_mask :tensor，contains only 0 and 1 -> ignore the paddings
+
+        # Their dimension are all the same：(Batch_size, Max_sentence_length)
         input_ids, input_tyi, input_attn_mask = inputs['input_ids'], inputs['token_type_ids'], inputs['attention_mask']
 
         # Two parts of Bert outputs：
