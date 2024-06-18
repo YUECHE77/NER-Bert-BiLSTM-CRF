@@ -27,7 +27,7 @@ class CombinedNER(nn.Module):
         self.crf = CRF(num_class, batch_first=True)
 
     def original_output(self, inputs):
-        # input_ids :tensor，shape=batch_size * max_len -> max_len: Length of the longest sentence in current batch
+        # input_ids :tensor，shape: (batch_size, max_len) -> max_len: Length of the longest sentence in current batch
         # input_tyi :tensor，identifiers of two sentences
         # input_attn_mask :tensor，contains only 0 and 1 -> ignore the paddings
 

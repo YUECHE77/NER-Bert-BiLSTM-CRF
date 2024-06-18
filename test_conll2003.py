@@ -43,13 +43,7 @@ if __name__ == "__main__":
     # ----------------------------------------------------#
     #   Start prediction
     # ----------------------------------------------------#
-    tokens, labels = G.predict(prompt, model, tokenizer, device, categories)
-    results = G.postprocess(tokens, labels)
+    entities = G.predict(prompt, model, tokenizer, device, categories, use_crf=False, english=True)
 
-    label_list = []
-    for token, label in results:
-        label_list.append(label)
-
-    print('Your sentence is:\n', prompt)
-    print()
-    print('Corresponding labels are:\n', ' '.join(label_list))
+    for entity, name in entities:
+        print(f'Entity: {entity}, Type: {name}')

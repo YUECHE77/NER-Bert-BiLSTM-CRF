@@ -1,6 +1,8 @@
 import torch
 from torch.utils.data import DataLoader
 
+import re
+
 from .NER_Dataset import NerDataset
 
 
@@ -97,14 +99,14 @@ def evaluate(real_label, predict_label):
     return precision, recall, f1
 
 
-def preprocess(text, tokenizer, device):
+def predict(text, model, tokenizer, device, categories, use_crf=False, english=False):
+    """Ultimate predict function -> from text to entities"""
+    """Very Important: Can only be used for Chinese!!!"""
+
+    # Tokenize the inputs, and store the results
     inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
     inputs = {key: value.to(device) for key, value in inputs.items()}
-    return inputs
 
-
-def predict(text, model, tokenizer, device, categories, use_crf=False):
-    inputs = preprocess(text, tokenizer, device)
     with torch.no_grad():
         if not use_crf:
             outputs = model(inputs)
@@ -118,21 +120,71 @@ def predict(text, model, tokenizer, device, categories, use_crf=False):
             outputs = model.predict(inputs)
             predictions = torch.tensor([p for seq in outputs for p in seq], device=device)
 
+            # Convert the tokens back to words
             # Convert the predictions to labels
-            tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0].cpu().numpy())
+            tokens = tokenizer.convert_ids_to_tokens(inputs['input_ids'][0].cpu().numpy())  # "[0]" because we only input 1 sentence
             predictions = predictions.cpu().numpy()
             labels = [categories[pred] for pred in predictions]
 
-    return tokens, labels
+        all_labels = []
+
+        for token, label in zip(tokens, labels):
+            # ignore the special tokens
+            # token[2:] to ignore the prefix "##". e.g. "##ing" -> "ing"
+            if token in ["[CLS]", "[SEP]", "[PAD]"] or token.startswith('##'):
+                continue
+
+            all_labels.append(label)
+
+        entities = []
+        entity = []
+        entity_type = None
+
+        if english:
+            # It can also recognize email and phone number -> is not easy adding this functionality on Chinese
+            pattern = re.compile(r'\w+@\w+\.\w+|\d+|[\w\'-]+|[.,!?;]')
+            text = pattern.findall(text)
+
+        for word, label in zip(text, all_labels):
+            if label.startswith('B-'):
+                # If there's an ongoing entity, save it before starting a new one
+                if entity:
+                    entities.append((''.join(entity), entity_type))
+                    entity = []
+
+                entity_type = label[2:]  # Get the entity type (e.g., 'name', 'organization')
+                entity.append(word)
+            elif label.startswith('I-') and entity_type == label[2:]:
+                entity.append(word)
+            else:
+                if entity:
+                    entities.append((''.join(entity), entity_type))
+                    entity = []
+                    entity_type = None
+
+        # Save the final entity if exists
+        if entity:
+            entities.append((" ".join(entity), entity_type))
+
+    return entities
 
 
-def postprocess(tokens, labels):
-    results = []
-    for token, label in zip(tokens, labels):
-        if token in ["[CLS]", "[SEP]", "[PAD]"]:  # ignore the special tokens
-            continue
-        if token.startswith("##"):
-            results[-1][0] += token[2:]
-        else:
-            results.append([token, label])
-    return results
+# The following two functions are deprecated, their functionalities are combined in the "predict" function.
+
+# def preprocess(text, tokenizer, device):
+#     inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
+#     inputs = {key: value.to(device) for key, value in inputs.items()}
+#     return inputs
+#
+#
+# def postprocess(tokens, labels):
+#     results = []
+#
+#     for token, label in zip(tokens, labels):
+#         if token in ["[CLS]", "[SEP]", "[PAD]"]:  # ignore the special tokens
+#             continue
+#         if token.startswith("##"):
+#             results[-1][0] += token[2:]  # token[2:] to ignore the prefix "##". e.g. "##ing" -> "ing"
+#         else:
+#             results.append([token, label])
+#     return results
