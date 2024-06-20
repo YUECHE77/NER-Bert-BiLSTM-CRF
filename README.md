@@ -1,5 +1,9 @@
 # Named Entity Recognition
-### I achieve three different approaches:
+### I achieved three different approaches:
 #### *1. Bert + Softmax*
 #### *2. Bert + CRF(Conditional Random Field)*
 #### *3. Bert + BiLSTM + CRF*
+
+### And used two datasets:
+#### *cluener dataset -> Chinese*
+#### *conll2003 dataset -> English*
