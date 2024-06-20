@@ -48,5 +48,9 @@ if __name__ == '__main__':
     # ----------------------------------------------------#
     entities = G.predict(prompt, model, tokenizer, device, categories, use_crf=True, english=False)
 
+    print('\nStart recognize: \n')
+
     for entity, name in entities:
         print(f'Entity: {entity}, Type: {name}')
+
+    print('\nFinished recognize \n')

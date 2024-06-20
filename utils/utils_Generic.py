@@ -13,7 +13,7 @@ def get_dataloader(data, tokenizer, categories, batch_size=32, mode='Train'):
         sents, all_labels = [], []
 
         for sent, ner_label in examples:
-            sents.append(sent)  # [[..., ..., ...], [..., ..., ...], [..., ..., ...], ... ...]
+            sents.append(sent)  # [[..., ..., ...], [..., ..., ...], ..., ..., [..., ..., ...]]
             all_labels.append([categories[i] for i in ner_label])  # From strings to numbers
 
         tokenized_inputs = tokenizer(sents, truncation=True, padding=True, return_offsets_mapping=True,
@@ -101,7 +101,6 @@ def evaluate(real_label, predict_label):
 
 def predict(text, model, tokenizer, device, categories, use_crf=False, english=False):
     """Ultimate predict function -> from text to entities"""
-    """Very Important: Can only be used for Chinese!!!"""
 
     # Tokenize the inputs, and store the results
     inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=512)
