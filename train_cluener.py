@@ -118,4 +118,4 @@ if __name__ == '__main__':
 
             precision, recall, f1 = eval_cluener(test_loader, model, device, categories)
 
-            print(f'On the test set\n: Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.3f}')
+            print(f'On the test set:\n Precision: {precision:.4f}, Recall: {recall:.4f}, F1: {f1:.3f}')
